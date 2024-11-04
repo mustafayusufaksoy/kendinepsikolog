@@ -109,7 +109,6 @@
 <body>
     <div id="alertText">Sayfa mobil cihazlarda çalışır.</div>
     <div class="container">
-        <p>CODEWANDER</p>
         <button id="recordButton" class="record-button">
             <i class="fas fa-microphone"></i>
         </button>
@@ -123,6 +122,8 @@
         </div>
 
         <div id="transcriptionText"></div>
+        <p style="font-size: 8px; color: #888; text-align: center; position: fixed; bottom: 0px; width: 100%;">version 0.0.1</p>
+        <a href="https://instagram.com/codewander" target="_blank" style="position: fixed; top: 10px; left: 10px;"><i class="fab fa-instagram" style="font-size: 24px; color: #888;"></i></a>
     </div>
 
     <script>
@@ -195,22 +196,22 @@
                 
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-                // Desteklenen ses formatını kontrol et
-                let mimeType = 'audio/webm;codecs=opus'; // Varsayılan format
-
-                // Safari için format kontrolü
-                if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                    mimeType = 'audio/mp4';
-                } else if (MediaRecorder.isTypeSupported('audio/aac')) {
-                    mimeType = 'audio/aac';
-                } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-                    mimeType = 'audio/webm';
+                // Basitleştirilmiş format kontrolü
+                let recorderOptions = {};
+                if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                    // Safari için basit yapılandırma
+                    recorderOptions = {
+                        audioBitsPerSecond: 128000
+                    };
+                } else {
+                    // Diğer tarayıcılar için
+                    recorderOptions = {
+                        mimeType: 'audio/webm;codecs=opus',
+                        audioBitsPerSecond: 128000
+                    };
                 }
 
-                mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: mimeType,
-                    audioBitsPerSecond: 128000
-                });
+                mediaRecorder = new MediaRecorder(stream, recorderOptions);
                 audioChunks = [];
                 
                 createAudioAnalyser(stream);
