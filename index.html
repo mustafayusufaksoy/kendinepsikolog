@@ -252,7 +252,7 @@
                 return true;
             }
 
-            if (requestCount >= 3) {
+            if (requestCount >= 6) {
                 document.getElementById('smokeContainer').style.display = 'block';
                 document.getElementById('alertTextkullanim').innerHTML = 
                     '<div class="engine-warning">🔥 Motorum ısındı! <br> Lütfen yarın tekrar deneyin 🔧 </div>';
@@ -475,7 +475,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Act as a friendly turkish psychologist having a casual conversation. 
+                                text: `Act as a friendly female turkish psychologist having a casual conversation. 
                                 Keep responses short and friendly, maximum 2-3 sentences.
                                 Never mention being AI or give disclaimers.
                                 Never mention clinical psychology or professional help.
