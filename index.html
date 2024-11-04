@@ -103,12 +103,85 @@
                 display: flex; /* Sadece masaüstü cihazlarda göster */
             }
         }
+
+        .smoke-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .smoke {
+            position: absolute;
+            width: 1px;
+            height: 160px;
+            bottom: 30%;
+            background: #4b4b4b;
+            animation: smoke 3s linear infinite;
+            opacity: 0;
+            filter: blur(8px);
+            transform-origin: 50% 100%;
+        }
+
+        @keyframes smoke {
+            0% {
+                transform: translateY(0) scaleX(1);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-150px) scaleX(5);
+            }
+            95% {
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(-300px) scaleX(10);
+            }
+        }
+
+        #alertTextkullanim {
+            font-size: 18px;
+            color: #dc3545;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .engine-warning {
+            animation: warning-pulse 2s infinite;
+        }
+
+        @keyframes warning-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 
 <body>
     <div id="alertText">Sayfa mobil cihazlarda çalışır.</div>
     <div class="container">
+        <div id="alertTextkullanim"></div>
+        <div class="smoke-container" id="smokeContainer">
+            <div class="smoke" style="left: 10%; animation-delay: 0.1s;"></div>
+            <div class="smoke" style="left: 20%; animation-delay: 0.5s;"></div>
+            <div class="smoke" style="left: 30%; animation-delay: 0.9s;"></div>
+            <div class="smoke" style="left: 40%; animation-delay: 0.4s;"></div>
+            <div class="smoke" style="left: 50%; animation-delay: 0.7s;"></div>
+            <div class="smoke" style="left: 60%; animation-delay: 0.3s;"></div>
+            <div class="smoke" style="left: 70%; animation-delay: 0.8s;"></div>
+            <div class="smoke" style="left: 80%; animation-delay: 0.2s;"></div>
+            <div class="smoke" style="left: 90%; animation-delay: 0.6s;"></div>
+            <div class="smoke" style="left: 95%; animation-delay: 1s;"></div>
+        </div>
         <button id="recordButton" class="record-button">
             <i class="fas fa-microphone"></i>
         </button>
@@ -124,6 +197,16 @@
         <div id="transcriptionText"></div>
         <p style="font-size: 8px; color: #888; text-align: center; position: fixed; bottom: 0px; width: 100%;">version 0.0.1</p>
         <a href="https://instagram.com/codewander" target="_blank" style="position: fixed; top: 10px; left: 10px;"><i class="fab fa-instagram" style="font-size: 24px; color: #888;"></i></a>
+        <a href="#" id="openModal" style="position: fixed; top: 10px; right: 10px;">
+            <i class="fas fa-fan" style="font-size: 24px; color: #888;"></i>
+        </a>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; z-index: 1001;">
+        <span id="closeModal" style="position: absolute; top: 20px; right: 30px; color: white; font-size: 30px; cursor: pointer;">&times;</span>
+        <p style="position: absolute; top: 20px; left: 20px; color: white; font-size: 18px; font-weight: bold;">Destek olmak için :)</p>
+        <img src="papara.JPG" alt="Image" style="max-width: 90%; max-height: 90%;">
     </div>
 
     <script>
@@ -153,6 +236,45 @@
         const key10Part9 = 'Ch3EV_0';
         const key10Part10 = 'qN8rF0ZLMps9qTamTpMShKfoL2AyZCnTrctzCF4A';
         const FULL_KEY = key1 + key2 + key3 + key4 + key5 + key6 + key7 + key8 + key9 + key10Part1 + key10Part2 + key10Part3 + key10Part4 + key10Part5 + key10Part6 + key10Part7 + key10Part8 + key10Part9 + key10Part10;
+
+        // IP bazlı istek sayacı için fonksiyonlar
+        function checkRequestLimit() {
+            const today = new Date().toDateString();
+            const requestCount = localStorage.getItem('requestCount') || 0;
+            const lastRequestDate = localStorage.getItem('lastRequestDate');
+
+            if (lastRequestDate !== today) {
+                localStorage.setItem('requestCount', '0');
+                localStorage.setItem('lastRequestDate', today);
+                return true;
+            }
+
+            if (requestCount >= 3) {
+                document.getElementById('smokeContainer').style.display = 'block';
+                document.getElementById('alertTextkullanim').innerHTML = 
+                    '<div class="engine-warning">🔥 Motorum ısındı! <br> Lütfen yarın tekrar deneyin 🔧 </div>';
+                return false;
+            }
+
+            return true;
+        }
+
+        function incrementRequestCount() {
+            const today = new Date().toDateString();
+            const currentCount = parseInt(localStorage.getItem('requestCount') || '0');
+            localStorage.setItem('requestCount', (currentCount + 1).toString());
+            localStorage.setItem('lastRequestDate', today);
+
+            if (currentCount + 1 >= 3) {
+                document.getElementById('smokeContainer').style.display = 'block';
+                document.getElementById('alertTextkullanim').innerHTML = 
+                    '<div class="engine-warning">🔥 Son konuşma hakkınızı kullandınız! Motor ısınmaya başladı 🔧</div>';
+            } else {
+                const remainingCount = 3 - (currentCount + 1);
+                document.getElementById('alertTextkullanim').textContent = 
+                    `Bugün ${remainingCount} konuşma hakkınız kaldı 🎯`;
+            }
+        }
 
         // Ses analizi için fonksiyon
         function createAudioAnalyser(stream) {
@@ -311,6 +433,10 @@
 
         recordButton.addEventListener('click', () => {
             if (!isRecording) {
+                // Kayıt başlamadan önce limit kontrolü
+                if (!checkRequestLimit()) {
+                    return;
+                }
                 startRecording();
                 recordButton.classList.add('recording');
                 recordButton.innerHTML = '<i class="fas fa-stop"></i>';
@@ -318,6 +444,7 @@
             } else {
                 if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
+                    incrementRequestCount(); // Kayıt bittiğinde sayacı artır
                     cancelAnimationFrame(animationId);
                     
                     if (audioContext) {
@@ -411,6 +538,31 @@
             audio.play();
             updateTTSAnimation();
         }
+
+        // Sayfa yüklendiğinde mevcut durumu kontrol et
+        document.addEventListener('DOMContentLoaded', () => {
+            checkRequestLimit();
+        });
+
+        const openModal = document.getElementById('openModal');
+        const imageModal = document.getElementById('imageModal');
+        const closeModal = document.getElementById('closeModal');
+
+        openModal.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default anchor behavior
+            imageModal.style.display = 'flex'; // Show the modal
+        });
+
+        closeModal.addEventListener('click', () => {
+            imageModal.style.display = 'none'; // Hide the modal
+        });
+
+        // Close modal when clicking outside of the image
+        imageModal.addEventListener('click', (event) => {
+            if (event.target === imageModal) {
+                imageModal.style.display = 'none'; // Hide the modal
+            }
+        });
     </script>
 </body>
 
