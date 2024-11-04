@@ -193,8 +193,21 @@
                 };
                 
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                // Desteklenen ses formatını kontrol et
+                let mimeType = 'audio/webm;codecs=opus'; // Varsayılan format
+
+                // Safari için format kontrolü
+                if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4';
+                } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                    mimeType = 'audio/aac';
+                } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+                    mimeType = 'audio/webm';
+                }
+
                 mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'audio/webm;codecs=opus',
+                    mimeType: mimeType,
                     audioBitsPerSecond: 128000
                 });
                 audioChunks = [];
