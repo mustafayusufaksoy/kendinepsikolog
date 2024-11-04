@@ -268,12 +268,12 @@
             localStorage.setItem('requestCount', (currentCount + 1).toString());
             localStorage.setItem('lastRequestDate', today);
 
-            if (currentCount + 1 >= 3) {
+            if (currentCount + 1 >= 6) {
                 document.getElementById('smokeContainer').style.display = 'block';
                 document.getElementById('alertTextkullanim').innerHTML = 
                     '<div class="engine-warning">🔥 Son konuşma hakkınızı kullandınız! Motor ısınmaya başladı 🔧</div>';
             } else {
-                const remainingCount = 3 - (currentCount + 1);
+                const remainingCount = 6 - (currentCount + 1);
                 document.getElementById('alertTextkullanim').textContent = 
                     `Bugün ${remainingCount} konuşma hakkınız kaldı 🎯`;
             }
@@ -476,6 +476,7 @@
                         contents: [{
                             parts: [{
                                 text: `Act as a friendly female turkish psychologist having a casual conversation. 
+                                Speak in a gentle young woman's voice in English. 
                                 Keep responses short and friendly, maximum 2-3 sentences.
                                 Never mention being AI or give disclaimers.
                                 Never mention clinical psychology or professional help.
