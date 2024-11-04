@@ -152,39 +152,14 @@
         const key10Part10 = 'qN8rF0ZLMps9qTamTpMShKfoL2AyZCnTrctzCF4A';
         const FULL_KEY = key1 + key2 + key3 + key4 + key5 + key6 + key7 + key8 + key9 + key10Part1 + key10Part2 + key10Part3 + key10Part4 + key10Part5 + key10Part6 + key10Part7 + key10Part8 + key10Part9 + key10Part10;
 
-        // Tarayıcı ve platform kontrolü
-        function isSafari() {
-            return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        }
-
-        function isiOS() {
-            return [
-                'iPad Simulator',
-                'iPhone Simulator',
-                'iPod Simulator',
-                'iPad',
-                'iPhone',
-                'iPod'
-            ].includes(navigator.platform)
-            || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-        }
-
         // Ses analizi için fonksiyon
-        async function createAudioAnalyser(stream) {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                // Safari için AudioContext'i başlat
-                if (audioContext.state === 'suspended') {
-                    await audioContext.resume();
-                }
-                analyser = audioContext.createAnalyser();
-                const source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                analyser.fftSize = 32;
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-            } catch (error) {
-                console.error('AudioContext error:', error);
-            }
+        function createAudioAnalyser(stream) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 32;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
         }
 
         // Animasyon güncelleme fonksiyonu
@@ -206,8 +181,22 @@
         // Ses kaydı başlatma fonksiyonu
         async function startRecording() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                const constraints = {
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                        // Safari için özel ayarlar
+                        sampleRate: 44100,
+                        channelCount: 1
+                    }
+                };
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus',
+                    audioBitsPerSecond: 128000
+                });
                 audioChunks = [];
                 
                 createAudioAnalyser(stream);
@@ -292,21 +281,7 @@
         const recordButton = document.getElementById('recordButton');
         let isRecording = false;
 
-        recordButton.addEventListener('click', async () => {
-            // Safari için ses izni kontrolü
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('Tarayıcınız mikrofon erişimini desteklemiyor.');
-                return;
-            }
-
-            // İlk tıklamada ses iznini al
-            try {
-                await navigator.mediaDevices.getUserMedia({ audio: true });
-            } catch (err) {
-                alert('Mikrofon izni reddedildi veya erişilemedi.');
-                return;
-            }
-
+        recordButton.addEventListener('click', () => {
             if (!isRecording) {
                 startRecording();
                 recordButton.classList.add('recording');
@@ -339,7 +314,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
+                    body: JSON.stringify({Whisper
                         contents: [{
                             parts: [{
                                 text: `Act as a friendly turkish psychologist having a casual conversation. 
@@ -407,16 +382,6 @@
 
             audio.play();
             updateTTSAnimation();
-        }
-
-        // Record button event listener'ına ekleyin
-        if (isSafari() && isiOS()) {
-            console.log('iOS Safari detected');
-            // iOS Safari'de ek kontroller
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('iOS Safari mikrofonunuza erişim için izin gerektirir. Lütfen ayarlardan izin verin.');
-                return;
-            }
         }
     </script>
 </body>
