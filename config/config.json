@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "Bigbangyazilim@2024",
+    "database": "ticket_project",
+    "host": "213.210.20.204",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "Bigbangyazilim@2024",
+    "database": "ticket_project",
+    "host": "213.210.20.204",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "Bigbangyazilim@2024",
+    "database": "ticket_project",
+    "host": "213.210.20.204",
+    "port": 5432,
+    "dialect": "postgres"
+  }
+} 
